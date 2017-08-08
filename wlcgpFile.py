@@ -3,8 +3,9 @@ import numpy as np
 
 def wlcgp(image):
     dImage = np.double(image)
-    ysize, xsize = np.size(dImage)
+    ysize, xsize = dImage.shape #ysize, xsize = dImage.shape
 
+    #print xsize
     bSizey = 3
     bSizex = 3
 
@@ -21,21 +22,28 @@ def wlcgp(image):
     dx = xsize - bSizex
     dy = ysize - bSizey
 
+    #print dx, dy
     # init the result matrix with 0
 
-    dDifferentialExcitation = np.zeros(dy + 1, dx + 1)
-    dGradientOrientation = np.zeros(dy + 1, dx + 1)
+    dDifferentialExcitation = np.zeros((dy + 2, dx + 2))
+    dGradientOrientation = np.zeros((dy + 2, dx + 2))
 
+    print np.shape(dDifferentialExcitation) #ok
     # compute WLCGP code per pixel
-
-    y = 2
-    while y <= ysize - 1:
-        y += 1
-        x = 2
-        while x <= xsize - 1:
-            x += 1
+    b = []
+    count = 0
+    y = 1 #2
+    while y <= ysize - 2:
+        #y += 1
+        count += 1
+        #print y
+        x = 1 #2
+        while x <= xsize - 2: #x <= xsize - 1:
+            #x += 1
             N = dImage[y - 1:y + 1, x - 1:x + 1]
-            center = dImage[x, y]
+            #print xsize
+            #print x, y
+            center = dImage[y, x]
 
             v00 = (abs(dImage[y + 1, x] - dImage[y + 1, x - 1])) + abs((dImage[y + 1, x + 1] - dImage[y + 1, x])) + abs(
                 (dImage[y, x + 1] \
@@ -56,8 +64,10 @@ def wlcgp(image):
                       dImage[y - 1, x + 1] \
                       + dImage[y, x + 1] + dImage[y + 1, x + 1]) / 9
 
+            b = np.append(b,v00)
+
             if (v01 != 0):
-                dDifferentialExcitation[y, x] = np.math.atan(ALPHA * v00 / v01)
+                dDifferentialExcitation[y, x] = np.math.atan(ALPHA * v00 / v01) #dlaczego
             else:
                 dDifferentialExcitation[y, x] = 0.1
 
@@ -73,17 +83,20 @@ def wlcgp(image):
                 v11 = N7 - N3
                 dGradientOrientation[y, x] = dGradientOrientation[y, x] * 180 / PI
 
-                if (v11 > EPSILON & v10 > EPSILON):
+                if (v11 > EPSILON) & (v10 > EPSILON):
                     dGradientOrientation[y, x] = dGradientOrientation[y, x] + 0
-                elif (v11 < -EPSILON & v10 > EPSILON):
+                elif (v11 < -EPSILON) & (v10 > EPSILON):
                     dGradientOrientation[y, x] = dGradientOrientation[y, x] + 180
-                elif (v11 < EPSILON & v10 < -EPSILON):
+                elif (v11 < EPSILON) & (v10 < -EPSILON):
                     dGradientOrientation[y, x] = dGradientOrientation[y, x] + 180
-                elif (v11 > EPSILON & v10 < -EPSILON):
+                elif (v11 > EPSILON) & (v10 < -EPSILON):
                     dGradientOrientation[y, x] = dGradientOrientation[y, x] + 360
                     # end
                     # end
                     # end
+            x += 1
+        y += 1
+    print b
     # end
 
     # histogram
@@ -101,20 +114,23 @@ def wlcgp(image):
                         PI / C)  # If bins is a sequence, it defines the bin edges, including the rightmost edge,
     # allowing for non-uniform bin widths.
 
+    print np.size(cValcen)
     tVal = np.arange(0, 360 + 360 / T, 360 / T)
     # Tval = 0:360/T:360;
 
-    h2d = np.zeros(C, T)
+    h2d = np.zeros((C, T))
+    print np.shape(h2d)
 
     i = 1
     while i <= T:
         i += 1
         if i > 1:
-            temp = dDifferentialExcitation[dGradientOrientation > tVal[i] & dGradientOrientation <= tVal[i + 1]];
+            temp = dDifferentialExcitation[(dGradientOrientation > tVal[i]) & (dGradientOrientation <= tVal[i + 1])] #boolean?
         else:
-            temp = dDifferentialExcitation[dGradientOrientation >= tVal[i] & dGradientOrientation <= tVal[i + 1]];
+            temp = dDifferentialExcitation[(dGradientOrientation >= tVal[i]) & (dGradientOrientation <= tVal[i + 1])] #chyba cos tu nie gra
         # end
-        h2d[:, i] = np.histogram(temp, cValcen)
+        print temp
+        h2d[:, i] = np.histogram(temp, cValcen) #!!!!!!!!!
     # end
 
     h = np.transpose(h2d)

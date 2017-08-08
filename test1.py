@@ -39,13 +39,13 @@ lbpI = []
 k = 0
 
 # while k <= numx:
-for k in range(numx):
+for k in range(1):
     #k += 1
     #m = 0
     #while m <= numy:
-    for m in range(numy):
+    for m in range(1):
         #m += 1
-        iCellBlock = iCell[k,m]
+        iCellBlock = iCell[0,0] #k,m
 
         #np.set_printoptions(threshold='nan')
         #print (iCellBlock[:,:]) #28x46 ok
