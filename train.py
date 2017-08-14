@@ -1,4 +1,3 @@
-# import modules.defaultvalues as dv
 import sys
 import glob
 import time
@@ -8,10 +7,6 @@ import cv2
 import commons
 import wlcgpFile
 import fisherTrain
-
-# OK
-
-column = []
 
 filepath = ".\ORL"  # file path to dir with test faces
 
@@ -25,40 +20,37 @@ allsamples = []  #
 numx = 4  # image segmentation settings
 numy = 2
 
-i = 1  # loop over each person
-while i <= NumPerson:
-    i += 1
-    j = 1
-    while j <= NumPerClassTrain:  # loop over training
-        j += 1
-        filePath = filepath + "\s" + str(i) + "\\" + str(j) + ".pgm"  # filepath to read
-        img = cv2.imread(filePath, 0)
-        xsize, ysize = img.shape  # get file size
+filePath = filepath + "\s" + str(1) + "\\" + str(1) + ".pgm"  # filepath to read
+img = cv2.imread(filePath, 0)
+xsize, ysize = img.shape  # get file size xsize - pionowo; ysize - poziomo
+img = np.double(img)
 
-        img = np.multiply(np.divide((np.subtract(img, (np.mean(img) + 128))), np.std(img)), 20)
+img = ((img - np.mean(img))+128)/np.std(img) * 20 # ok
 
-        iCell = commons.block(numx, numy, img)
 
-        lbpI = []
-        k = 0
-        while k <= numx:
-            k += 1
-            m = 0
-            while m <= numy:
-                m += 1
-                iCellBlock = iCell[k, m]
-                # iCellBlock = #cell2mat --nie wiem czy potrzebujemy bo ta funkcja jest specyficzna dla matlaba i rozpisuje "cell" na
-                #print np.size(iCellBlock)
-                print k
-                print (iCell[k],0)
-                blockLBPI = wlcgpFile.wlcgp(iCellBlock) #!!!!
-                blockLBPI = np.transpose(blockLBPI)  # transpozycja macierzy blockLBPI
-                lbpI = np.concatenate((lbpI, blockLBPI))  # LBP_I=[LBP_I,Block_LBP_I];
+iCell = commons.block(numx, numy, img)
+
+lbpI = []
+k = 0
+
+# while k <= numx:
+for k in range(1): #numx
+    #k += 1
+    #m = 0
+    #while m <= numy:
+    for m in range(1): #numy
+        #m += 1
+        iCellBlock = iCell[k,m] #k,m
+        # iCellBlock = #cell2mat --nie wiem czy potrzebujemy bo ta funkcja jest specyficzna dla matlaba i rozpisuje "cell" na
+
+        blockLBPI = wlcgpFile.wlcgp(iCellBlock) #!!!!
+        blockLBPI = np.transpose(blockLBPI)  # transpozycja macierzy blockLBPI
+        lbpI = np.concatenate((lbpI, blockLBPI))  # LBP_I=[LBP_I,Block_LBP_I];
 
         allsamples = np.concatenate((allsamples, lbpI))
 
 sampleMean = np.mean(allsamples)
-nTrain = np.size(allsamples, 1)
+#nTrain = np.size(allsamples, 1)
 i = 1
 
 xmean = np.zeros(nTrain, allsamples.size)

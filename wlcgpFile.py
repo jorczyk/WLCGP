@@ -118,12 +118,12 @@ def wlcgp(image):
     # cValcen = np.arange(-(PI / 2 + PI / C), PI / 2 + (2 * PI / C),
     #                     PI / C) ////+ (1/2*PI / C)
 
-    print "cvalen: " + str(np.size(cValcen))
+    #print "cvalen: " + str(np.size(cValcen))
     tVal = np.arange(0, 360 + 360 / T, 360 / T)
     # Tval = 0:360/T:360;
 
     h2d = np.zeros((C, T))
-    print "h2d size: " + str(np.shape(h2d))
+    #print "h2d size: " + str(np.shape(h2d))
 
     i = 0
     temp = []
@@ -139,12 +139,12 @@ def wlcgp(image):
 
         # print dDifferentialExcitation #ok
         # print "temp: " + str(temp)
-        print "histogram: " + str((np.histogram(temp, cValcen)[0]))
+        #print "histogram: " + str((np.histogram(temp, cValcen)[0]))
         h2d[:, i] = np.histogram(temp, cValcen)[0]
         # zle wartosci - ale jak beda dla kazdego takie same to luz ALE SA 0!! --do poprawienia!!!
     # end
 
-    print np.size(np.histogram(temp, cValcen)[0])
+    #print np.size(np.histogram(temp, cValcen)[0])
 
     h = np.transpose(h2d)
     h = np.reshape(h, (T, S, M))
@@ -159,5 +159,5 @@ def wlcgp(image):
         temph = np.append(temph, temp[:])
     # end
     h1d = temph
-    print np.size(h1d) #ok
+    #print h1d.shape #ok
     return h1d

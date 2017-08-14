@@ -85,3 +85,39 @@ i = 1
 xmean = np.zeros((nTrain, allsamples.shape[1]))
 
 #print xmean.shape
+
+
+sigma = np.multiply(xmean, np.transpose(xmean))
+v, d = np.linalg.eig(sigma)
+d1 = np.diag(d)
+d2, index = np.sort(d1)
+rows, cols = v.shape
+
+vsort = []
+dsort = []
+i = 1
+while i < cols:
+    i += 1
+    vsort[:, i] = v[:, index(cols - i + 1)]
+    dsort[i] = d1[index(cols - i + 1)]
+
+dsum = np.sum(dsort)  # dsum = sum(dsort);
+dsumExtract = 0
+p = 0
+
+while dsumExtract / dsum < 0.95:
+    p = p + 1
+    dsumExtract = np.sum(dsort[1:p])
+
+i = 1
+p = nTrain - 1
+
+base = []
+while (i <= p & dsort[i] > 0):
+    base[:, i] = dsort[i] ** (-1 / 2) * np.transpose(xmean) * vsort[:, i]
+    i = i + 1
+
+allcoor = allsamples * base
+P = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain).P
+E = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain).E
+accu = 0

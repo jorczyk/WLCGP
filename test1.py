@@ -39,22 +39,16 @@ lbpI = []
 k = 0
 
 # while k <= numx:
-for k in range(1):
+for k in range(1): #numx
     #k += 1
     #m = 0
     #while m <= numy:
-    for m in range(1):
+    for m in range(1): #numy
         #m += 1
-        iCellBlock = iCell[0,0] #k,m
-
-        #np.set_printoptions(threshold='nan')
-        #print (iCellBlock[:,:]) #28x46 ok
-        #print np.size(iCellBlock,1) #46 x 28 --powinno byc odwrotnie
-
+        iCellBlock = iCell[k,m] #k,m
         # iCellBlock = #cell2mat --nie wiem czy potrzebujemy bo ta funkcja jest specyficzna dla matlaba i rozpisuje "cell" na
 
         blockLBPI = wlcgpFile.wlcgp(iCellBlock) #!!!!
-        # blockLBPI = np.transpose(blockLBPI)  # transpozycja macierzy blockLBPI
-        # lbpI = np.concatenate((lbpI, blockLBPI))  # LBP_I=[LBP_I,Block_LBP_I];
+        blockLBPI = np.transpose(blockLBPI)  # transpozycja macierzy blockLBPI
+        lbpI = np.concatenate((lbpI, blockLBPI))  # LBP_I=[LBP_I,Block_LBP_I];
 
-allsamples = np.concatenate((allsamples, lbpI))
