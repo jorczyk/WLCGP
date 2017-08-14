@@ -43,63 +43,77 @@ lbpI = np.asarray(lbpI)
 j = 0
 for j in range(NumPerClassTrain):
     k = 0
-
     # while k <= numx:
     for k in range(numx):  # numx
         # k += 1
         # m = 0
         # while m <= numy:
         for m in range(numy):  # numy
-            # m += 1
             iCellBlock = iCell[k, m]  # k,m
-            # iCellBlock = #cell2mat --nie wiem czy potrzebujemy bo ta funkcja jest specyficzna dla matlaba i rozpisuje "cell" na
-
-            blockLBPI = wlcgpFile.wlcgp(iCellBlock)  # !!!!
-            # print blockLBPI[:, None].shape
-            blockLBPI = np.transpose(blockLBPI)  # transpozycja macierzy blockLBPI
+            blockLBPI = wlcgpFile.wlcgp(iCellBlock)
+            blockLBPI = np.transpose(blockLBPI)
             # lbpI = np.concatenate((lbpI, blockLBPI))  # LBP_I=[LBP_I,Block_LBP_I]; moze byc concatenate
-            # print blockLBPI.shape
-            # print blockLBPI.shape
-
-            if (m == 0):
+            if (m == 0) & (k == 0):
                 lbpI = blockLBPI
             else:
                 lbpI = np.concatenate((lbpI, blockLBPI))  # LBP_I=[LBP_I,Block_LBP_I]; moze byc concatenate
-
+                # END for m in range(numy):
     if (j == 0):
         allsamples = lbpI
     else:
-        #print "all: " + str(allsamples.shape)
-        #print "lbpi: " + str(lbpI.shape)
-        # allsamples = np.stack((allsamples, lbpI), 1)
         allsamples = np.concatenate((allsamples, lbpI), -1)
 
-#print allsamples.shape
-allsamples = allsamples.reshape((lbpI.size,NumPerClassTrain))
-#print allsamples.shape
+# END for j in range(NumPerClassTrain)
+# print allsamples.shape
+allsamples = allsamples.reshape((NumPerClassTrain, lbpI.size))  # size ok
+# print allsamples.shape
 
 sampleMean = np.mean(allsamples)
 nTrain = np.size(allsamples, 0)
-i = 1
 
 xmean = np.zeros((nTrain, allsamples.shape[1]))
 
-#print xmean.shape
+# print xmean.shape
+i = 0
+for i in range(nTrain):
+    # while i <= nTrain:
+    #     i += 1
+    xmean[i, :] = allsamples[i, :] - sampleMean
+# end
 
+# print xmean.shape
 
-sigma = np.multiply(xmean, np.transpose(xmean))
-v, d = np.linalg.eig(sigma)
-d1 = np.diag(d)
-d2, index = np.sort(d1)
+# PCA
+# sigma = xmean * np.transpose(xmean)
+sigma = xmean.dot(np.transpose(xmean))
+
+d, v = np.linalg.eig(sigma)  # !!!
+# d-eigenvalues(8) v-eigenvectors(8x8)
+
+# matrix D of eigenvalues  matrix V whose columns are the corresponding right eigenvectors --MATLAB
+
+# dTemp = np.zeros((d.size,d.size))
+
+# d1 = np.diag(d) #zmiana v i d byla
+# print d.shape
+d1 = np.squeeze(np.asarray(d))  # rozmiar chyba ok
+# print d1
+
+d2 = d1.sort
+index = np.argsort(d1)
+
+print index
 rows, cols = v.shape
 
-vsort = []
-dsort = []
+print v[:,index[8 - 8]]
+
+vsort = [] #as matrix
+dsort = [] #as matrix albo cokolwiek 2d
 i = 1
 while i < cols:
     i += 1
-    vsort[:, i] = v[:, index(cols - i + 1)]
-    dsort[i] = d1[index(cols - i + 1)]
+    vsort[:, i] = v[:, index[cols - i + 1]] #!!
+    dsort[i] = d1[index[cols - i + 1]]
 
 dsum = np.sum(dsort)  # dsum = sum(dsort);
 dsumExtract = 0
