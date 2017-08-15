@@ -1,21 +1,30 @@
 from collections import namedtuple
 import numpy as np
 
-fisherResult = namedtuple('fisherResult', ['P', 'E'])
+# fisherResult = namedtuple('fisherResult', ['P', 'E'])
 #OK
 
 def fisher(X, c, ni):
-    r, n = np.size(X)
+    r, n = X.shape
     XT = np.transpose(X)
     mxTot = np.mean(XT)  # mx_tot = mean(XT)';
 
     MXi = []
-    i = 1
-    while i <= c:
-        Xi = X[:, ni * (i - 1) + 1:ni * i]
+    Xi = np.zeros(X.shape)
+    i = 0 #1
+    for i in range(c):
+    # while i <= c:
+
+        j=0
+        for j in range(ni-1):
+            Xi[:,j] = X[:, ni * (i - 1) + range(1, ni)[j] * i] #!!!!!!!!!! 1:ni range(1, ni)
+
+        # print Xi #ok?
         XiT = np.transpose(Xi)
-        MXi[:, i] = np.mean(XiT)
-        i = i + 1
+        # print np.transpose(np.mean(XiT,1))
+        #print X.shape
+        MXi[:, i] = np.transpose(np.mean(XiT))
+        # i = i + 1
     # end
 
     FXB = MXi - mxTot * np.ones(1, c)
@@ -56,6 +65,7 @@ def fisher(X, c, ni):
         EV[:, coln] = 0
     # end
     P = np.transpose(E[:, :]) * X
-    result = fisherResult(P, E)
+    result = (P,E)
+    # result = fisherResult(P, E)
 
     return result

@@ -143,7 +143,10 @@ while (i <= p) & (dsort[i] > 0):
 
 allcoor = allsamples.dot(base) #allsamples * base
 # print allcoor.shape #ok
-# P = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain).P
-# E = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain).E
-# accu = 0
+
+temp = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain) #!!!
+
+P = temp.P
+E = temp.E
+accu = 0
 
