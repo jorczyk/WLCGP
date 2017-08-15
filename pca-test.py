@@ -64,9 +64,9 @@ for j in range(NumPerClassTrain):
         allsamples = np.concatenate((allsamples, lbpI), -1)
 
 # END for j in range(NumPerClassTrain)
-# print allsamples.shape
+#print allsamples.shape
 allsamples = allsamples.reshape((NumPerClassTrain, lbpI.size))  # size ok
-# print allsamples.shape
+#print allsamples.shape
 
 sampleMean = np.mean(allsamples)
 nTrain = np.size(allsamples, 0)
@@ -102,36 +102,48 @@ d1 = np.squeeze(np.asarray(d))  # rozmiar chyba ok
 d2 = d1.sort
 index = np.argsort(d1)
 
-print index
+#print index
 rows, cols = v.shape
 
-print v[:,index[8 - 8]]
+vsort = np.zeros((rows,cols))
 
-vsort = [] #as matrix
-dsort = [] #as matrix albo cokolwiek 2d
-i = 1
-while i < cols:
-    i += 1
-    vsort[:, i] = v[:, index[cols - i + 1]] #!!
-    dsort[i] = d1[index[cols - i + 1]]
+#print vsort.shape
+
+dsort = [0]*index.size
+i = 0
+for i in range(cols):
+    vsort[:, i] = v[:, index[cols - i -1]] #!!
+    dsort[i] = d1[index[cols - i - 1]]
 
 dsum = np.sum(dsort)  # dsum = sum(dsort);
 dsumExtract = 0
 p = 0
 
+#print dsum
+
 while dsumExtract / dsum < 0.95:
+    dsumExtract = np.sum(dsort[0:p]) #(dsort[1:p])
     p = p + 1
-    dsumExtract = np.sum(dsort[1:p])
+    # print "dsumExtract: " + str(dsumExtract/dsum)
+    # print p
 
-i = 1
-p = nTrain - 1
+i = 0
+p = nTrain - 1 #nTrain - 1
 
-base = []
-while (i <= p & dsort[i] > 0):
-    base[:, i] = dsort[i] ** (-1 / 2) * np.transpose(xmean) * vsort[:, i]
+# print ((vsort[:, i]).shape) #ok
+# print (dsort[1]** (-1 / 2)) #ok
+
+
+base = np.zeros((allsamples.shape[1],p))
+while (i <= p) & (dsort[i] > 0):
+    base[:, i] = dsort[i] ** (-1 / 2) * np.transpose(xmean).dot(vsort[:, i]) #dsort[i] ** (-1 / 2) * np.transpose(xmean) * vsort[:, i]
     i = i + 1
 
-allcoor = allsamples * base
-P = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain).P
-E = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain).E
-accu = 0
+# print base.shape #ok
+
+allcoor = allsamples.dot(base) #allsamples * base
+# print allcoor.shape #ok
+# P = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain).P
+# E = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain).E
+# accu = 0
+
