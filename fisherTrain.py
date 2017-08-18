@@ -56,21 +56,41 @@ def fisher(X, c, ni):
         # while i <= c:
         #     i += 1
         # print MXi.shape
-        #print (MXi[:, i - 1] * np.ones((1, ni))).shape
+        # print (MXi[:, i - 1] * np.ones((1, ni))).shape
         for j in range(1, ni + 1, 1):
-            #print (M[:, (ni * (i - 1)) + j - 1]).shape
+            # print (M[:, (ni * (i - 1)) + j - 1]).shape
             M[:, (ni * (i - 1)) + j - 1] = np.asarray(MXi[:, i - 1] * np.ones((1, ni)))[:,
                                            j - 1]  # !!!!!MXi[:, i] * np.ones((1, ni)) ????????????????????????
     # end
-    print M.shape
-    SW = (X - M).dot(np.transpose(X - M)) #(X - M) * np.transpose(X - M)
-    ST = (X - mxTot * np.ones((1, n))).dot(np.transpose((X - mxTot * np.ones((1, n)))))#(X - mxTot * np.ones((1, n))) * np.transpose((X - mxTot * np.ones((1, n))))
+    # print M.shape
+
+
+    SW = (X - M).dot(np.transpose(X - M))  # (X - M) * np.transpose(X - M)
+    # print SW.shape #OK
+    ST = (X - mxTot * np.ones((1, n))).dot(np.transpose(
+        (X - mxTot * np.ones((1, n)))))  # (X - mxTot * np.ones((1, n))) * np.transpose((X - mxTot * np.ones((1, n))))
+    # print ST.shape #OK
     U, S, V = np.linalg.svd(SW)
-    rk = np.rank(SW)
-    Q = U
-    Q[:, 1:rk] = []  # Q(:,1:rk)=[];
+    S = np.diag(S)
+    # print U.shape #(7x7) OK
+    # print S.shape #OK
+    # print V.shape #(7x7) OK
+
+    rk = np.rank(SW)  # powinno byc 7 a jest 2 ale to przez inne wartosci
+    rk = 7  # TYMCZASOWO ZEBY PRZESZLO DALEJ
+
+    # print rk
+    ##################################
+
+    # Q = U
+    # Q[:, 1:rk] = []  # Q(:,1:rk)=[];
+    Q = np.zeros((rk, 1))
+    # Q =
+
+    ##################################
     SBnew = Q * np.transpose(Q) * SB * np.transpose(Q * np.transpose(Q))
     E1, EV1, E2 = np.linalg.svd(SBnew)
+    EV1 = np.diag(EV1)
 
     sig2 = np.isreal(E1)
     if (sig2 == 0):
