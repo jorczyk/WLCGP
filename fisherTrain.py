@@ -38,13 +38,13 @@ def fisher(X, c, ni):
             # print temp.size
         # MXi[:, i] = np.transpose(np.mean(XiT))
         MXi[:, i - 1] = temp
-        # print MXi
-        # end
 
+        # end
+    # print MXi.shape
     ##################
 
     FXB = MXi - mxTot * np.ones((1, c))
-    SB = ni * FXB * np.transpose(FXB)  # sprawdzic czy dobry wynik; rozmiar OK
+    SB = ni * FXB.dot(np.transpose(FXB))  # SB = ni * FXB * np.transpose(FXB) sprawdzic czy dobry wynik; rozmiar OK
 
     # print FXB.shape
     # print SB.shape
@@ -76,16 +76,23 @@ def fisher(X, c, ni):
     # print S.shape #OK
     # print V.shape #(7x7) OK
 
-    rk = np.rank(SW)  # powinno byc 7 a jest 2 ale to przez inne wartosci
-    rk = 7  # TYMCZASOWO ZEBY PRZESZLO DALEJ
-
+    # rk = np.rank(SW)  # cos dzialalo zle
+    rk = np.linalg.matrix_rank(SW)
     # print rk
     ##################################
 
     # Q = U
     # Q[:, 1:rk] = []  # Q(:,1:rk)=[];
-    Q = np.zeros((rk, 1))
-    # Q =
+    Q = np.zeros((rk, c))  # c-1???
+
+    # print c
+    # print
+    for i in range(c):
+        # print U.shape[1]-i
+        Q[:, i] = U[:, U.shape[1] + i - c]
+
+    # print U #ok --chyba
+    # print Q #ok --chyba
 
     ##################################
     SBnew = Q * np.transpose(Q) * SB * np.transpose(Q * np.transpose(Q))
