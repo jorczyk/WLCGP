@@ -95,29 +95,40 @@ def fisher(X, c, ni):
     # print Q #ok --chyba
 
     ##################################
-    SBnew = Q * np.transpose(Q) * SB * np.transpose(Q * np.transpose(Q))
+    SBnew = Q.dot(np.transpose(Q)) * SB * np.transpose(Q.dot(np.transpose(Q)))  # romiar OK
+
+    # print SBnew.shape
     E1, EV1, E2 = np.linalg.svd(SBnew)
     EV1 = np.diag(EV1)
 
-    sig2 = np.isreal(E1)
-    if (sig2 == 0):
+    # sig2 = np.isreal(E1)
+    # print np.all(np.isreal((E1)))
+    if not (np.all(np.isreal(E1))):  # sig2 == 0
         E1 = np.real(E1)
         EV1 = np.real(EV1)
     # end
 
-    EV = np.sum(EV1)
-    rk1 = np.rank(EV1)
+    EV = np.sum(EV1, 0).reshape((1,EV1.shape[1]))
+    # print EV.shape
+    rk1 = np.linalg.matrix_rank(EV1)  # powinno byc 2 jest 11
+    # rk1 = np.rank(EV1)
+    # print EV1
 
-    E = []
+    E = np.zeros((E1.shape[0], rk1))
+    # i = 1
+    # while i <= rk1:
+    #     i += 1
 
-    i = 1
-    while i <= rk1:
-        i += 1
-        maxValue, coln = np.max(EV)  # [max_value,coln]=max(EV);
+    # print E.shape
+    # print E1.shape
+    for i in range(rk1):
+        maxValue = np.amax(EV)  # [max_value,coln]=max(EV);
+        coln = np.argmax(EV)
+        # print coln
         E[:, i] = E1[:, coln]
         EV[:, coln] = 0
     # end
-    P = np.transpose(E[:, :]) * X
+    P = np.transpose(E[:, :]).dot(X) #np.transpose(E[:, :]) * X
     result = (P, E)
     # result = fisherResult(P, E)
 
