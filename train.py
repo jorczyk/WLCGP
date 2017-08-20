@@ -162,12 +162,3 @@ while i <= NumPerson:
 accu = accu / div
 
 print accu
-
-
-
-# np.subtract(x1, x2)
-# np.std(a)
-# np.mean(a)
-
-# block
-# cell2mat

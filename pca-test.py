@@ -10,7 +10,7 @@ import fisherTrain
 
 filepath = ".\ORL"  # file path to dir with test faces
 
-NumPerson = 40  # number of classes
+NumPerson = 1  # number of classes
 NumPerClass = 10  # number of faces for each class
 NumPerClassTrain = 8  # trainging count for each class
 NumPerClassTest = NumPerClass - NumPerClassTrain  #
@@ -142,11 +142,11 @@ while (i <= p) & (dsort[i] > 0):
 # print base.shape #ok
 
 allcoor = allsamples.dot(base) #allsamples * base
-# print allcoor.shape #ok
+#print allcoor.shape #ok numperson jest wazne
 
 temp = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain) #!!!
 
-P = temp.P
-E = temp.E
-accu = 0
+# P = temp.P
+# E = temp.E
+# accu = 0
 

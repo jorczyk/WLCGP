@@ -111,6 +111,7 @@ def fisher(X, c, ni):
     EV = np.sum(EV1, 0).reshape((1,EV1.shape[1]))
     # print EV.shape
     rk1 = np.linalg.matrix_rank(EV1)  # powinno byc 2 jest 11
+    # rk1=2 #FOR TESTING ONLY
     # rk1 = np.rank(EV1)
     # print EV1
 
