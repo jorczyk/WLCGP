@@ -82,6 +82,10 @@ def wlcgp(image):
             else:
                 v10 = N5 - N1
                 v11 = N7 - N3
+
+                # d_gradient_orientation(y, x) = atan(v10 / v11);
+                dGradientOrientation[y, x] = np.arctan(v10/v11)
+
                 dGradientOrientation[y, x] = dGradientOrientation[y, x] * 180 / PI
 
                 if (v11 > EPSILON) & (v10 > EPSILON):
@@ -125,9 +129,10 @@ def wlcgp(image):
     h2d = np.zeros((C, T))
     #print "h2d size: " + str(np.shape(h2d))
 
-    i = 0
     temp = []
     # while i <= T-1:
+    # print h2d.shape #ok
+
     for i in range(T):  # T
         if i > 1:
             temp = dDifferentialExcitation[
@@ -136,7 +141,10 @@ def wlcgp(image):
             temp = dDifferentialExcitation[
                 (dGradientOrientation >= tVal[i]) & (dGradientOrientation <= tVal[i + 1])]  # chyba cos tu nie gra
         # end
-
+        # print temp.shape #smiga
+        # print dDifferentialExcitation[:,1] #chyba ok wartosci
+        # print dGradientOrientation.shape #shape ok
+        # print dGradientOrientation[:,2] #teraz juz dziala
         # print dDifferentialExcitation #ok
         # print "temp: " + str(temp)
         #print "histogram: " + str((np.histogram(temp, cValcen)[0]))
@@ -144,12 +152,16 @@ def wlcgp(image):
         # zle wartosci - ale jak beda dla kazdego takie same to luz ALE SA 0!! --do poprawienia!!!
     # end
 
-    #print np.size(np.histogram(temp, cValcen)[0])
+    # print np.size(np.histogram(temp, cValcen)[0])
+    # print h2d
+    # print cValcen
+    # print h2d #wartosci ok
+
+    #######################################################################################################
 
     h = np.transpose(h2d)
     h = np.reshape(h, (T, S, M))
 
-    j = 0
     temph = np.empty(0)
     for j in range(M):
     # while j <= M:
@@ -159,5 +171,6 @@ def wlcgp(image):
         temph = np.append(temph, temp[:])
     # end
     h1d = temph
+    # print h1d #wyniki inne!
     #print h1d.shape #ok
     return h1d
