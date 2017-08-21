@@ -1,6 +1,7 @@
 import numpy as np
 
-#TODO -- zle obliczanie wartosci w histogramie i te dziwne 0 kolumny
+
+# TODO -- zle obliczanie wartosci w histogramie i te dziwne 0 kolumny
 
 def wlcgp(image):
     dImage = np.double(image)
@@ -84,7 +85,7 @@ def wlcgp(image):
                 v11 = N7 - N3
 
                 # d_gradient_orientation(y, x) = atan(v10 / v11);
-                dGradientOrientation[y, x] = np.arctan(v10/v11)
+                dGradientOrientation[y, x] = np.arctan(v10 / v11)
 
                 dGradientOrientation[y, x] = dGradientOrientation[y, x] * 180 / PI
 
@@ -122,12 +123,12 @@ def wlcgp(image):
     # cValcen = np.arange(-(PI / 2 + PI / C), PI / 2 + (2 * PI / C),
     #                     PI / C) ////+ (1/2*PI / C)
 
-    #print "cvalen: " + str(np.size(cValcen))
+    # print "cvalen: " + str(np.size(cValcen))
     tVal = np.arange(0, 360 + 360 / T, 360 / T)
     # Tval = 0:360/T:360;
 
     h2d = np.zeros((C, T))
-    #print "h2d size: " + str(np.shape(h2d))
+    # print "h2d size: " + str(np.shape(h2d))
 
     temp = []
     # while i <= T-1:
@@ -147,7 +148,7 @@ def wlcgp(image):
         # print dGradientOrientation[:,2] #teraz juz dziala
         # print dDifferentialExcitation #ok
         # print "temp: " + str(temp)
-        #print "histogram: " + str((np.histogram(temp, cValcen)[0]))
+        # print "histogram: " + str((np.histogram(temp, cValcen)[0]))
         h2d[:, i] = np.histogram(temp, cValcen)[0]
         # zle wartosci - ale jak beda dla kazdego takie same to luz ALE SA 0!! --do poprawienia!!!
     # end
@@ -160,17 +161,20 @@ def wlcgp(image):
     #######################################################################################################
 
     h = np.transpose(h2d)
-    h = np.reshape(h, (T, S, M))
+    # print h.shape #ok
+    # print h[2,:] #wartosci ok
+    h = np.reshape(h, (T, S, M), order="F")
+
+    # print h.shape #ok
+    # print h[:,:,4] #ok
 
     temph = np.empty(0)
     for j in range(M):
-    # while j <= M:
-        # j += 1
-        temp = h[:, :, j]
-        # temph = np.concatenate(temph, temp[:])  # h = reshape(h,[T,S,M]);
-        temph = np.append(temph, temp[:])
+        temp = h[:, :, j].flatten(1)
+        temph = np.append(temph, temp)#temp[:]
+
     # end
     h1d = temph
-    # print h1d #wyniki inne!
-    #print h1d.shape #ok
+    # print h1d #ok
+    # print h1d.shape #ok
     return h1d
