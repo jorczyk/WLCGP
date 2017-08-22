@@ -10,9 +10,9 @@ import fisherTrain
 
 filepath = ".\ORL"  # file path to dir with test faces
 
-NumPerson = 4  # number of classes
+NumPerson = 5  # number of classes #3
 NumPerClass = 10  # number of faces for each class
-NumPerClassTrain = 8  # trainging count for each class
+NumPerClassTrain = 6  # trainging count for each class #4
 NumPerClassTest = NumPerClass - NumPerClassTrain  #
 
 allsamples = np.empty((0, 0))
@@ -54,17 +54,23 @@ for i in range(1, NumPerson + 1):
 
 allsamples = allsamples.reshape((NumPerClassTrain * NumPerson, lbpI.size))  # size ok
 # print allsamples.shape
-sampleMean = np.mean(allsamples)
+sampleMean = np.mean(allsamples,0).reshape((1,allsamples.shape[1]))
 nTrain = np.size(allsamples, 0)
+
+# print sampleMean.shape
 
 xmean = np.zeros((nTrain, allsamples.shape[1]))
 for i in range(nTrain):
     xmean[i, :] = allsamples[i, :] - sampleMean
 # end
 
+# print xmean[:,700] #rozmiar i wyniki ok
+
 ###################################################
 # PCA
 sigma = xmean.dot(np.transpose(xmean))
+
+# print sigma
 
 d, v = np.linalg.eig(sigma)
 # d-eigenvalues(8) v-eigenvectors(8x8)
@@ -77,6 +83,10 @@ d1 = np.squeeze(np.asarray(d))  # rozmiar chyba ok
 d2 = d1.sort
 index = np.argsort(d1)
 
+# print d1 #3,4,2,1
+# print v #-4,-3,-1,2 --eigeny moga sie nie zgadzac bo tak
+print d #4,3,1,2
+
 rows, cols = v.shape
 
 vsort = np.zeros((rows, cols))
@@ -86,13 +96,25 @@ for i in range(cols):
     vsort[:, i] = v[:, index[cols - i - 1]]  # !!
     dsort[i] = d1[index[cols - i - 1]]
 
+# print dsort #elementy te same, zmieniona kolejnosc
+# print vsort #elementy z -1 i zmieniona kolejnosc
+
+
 dsum = np.sum(dsort)  # dsum = sum(dsort);
+# print dsum #ok
+
+# po co jest ten fragment??
+
 dsumExtract = 0
 p = 0
 
 while dsumExtract / dsum < 0.95:
-    dsumExtract = np.sum(dsort[0:p])  # (dsort[1:p])
+    dsumExtract = np.sum(dsort[0:p-1])  # (dsort[1:p])
     p = p + 1
+
+###############
+
+# print dsumExtract #ok
 
 i = 0
 p = nTrain - 1  # nTrain - 1
@@ -101,16 +123,20 @@ p = nTrain - 1  # nTrain - 1
 
 # print ((vsort[:, i]).shape) #ok
 # print (dsort[1]** (-1 / 2)) #ok
+# print dsort
 
 base = np.zeros((allsamples.shape[1], p))
 while (i < p) & (dsort[i] > 0):  # (i <= p)!
-    base[:, i] = dsort[i] ** (-1 / 2) * np.transpose(xmean).dot(
-        vsort[:, i])  # dsort[i] ** (-1 / 2) * np.transpose(xmean) * vsort[:, i]
+    base[:, i] = (dsort[i] ** (-1 / 2)) * (np.transpose(xmean).dot(
+        vsort[:, i]))  # dsort[i] ** (-1 / 2) * np.transpose(xmean) * vsort[:, i]
     i = i + 1
+# print base[750,0] #wartosci inne przez inne eigeny!
     # print base.shape
     # print p
 
 allcoor = allsamples.dot(base)
+#
+# print allcoor
 # print allcoor.shape #ok numperson jest wazne
 
 temp = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain)  # !!!
@@ -120,6 +146,7 @@ E = temp[1]
 accu = 0
 
 # print E.shape
+# print P.shape
 
 ####################################################
 

@@ -2,6 +2,8 @@ from collections import namedtuple
 import numpy as np
 
 
+# TODO -- kiedy ni jest rowne 1 to jest problem w petli ale to malo prawdopodobny przypadek
+
 # fisherResult = namedtuple('fisherResult', ['P', 'E'])
 # OK
 
@@ -12,21 +14,32 @@ def fisher(X, c, ni):
 
     # MXi = []
     temp = []
-    Xi = np.zeros(X.shape)
+    # print X
+    Xi = np.zeros(((ni * c) - 1, ni))
+    # print Xi #teraz rozmiar ok
     # i = 0  # 1
+    # print Xi.shape
+    # for i in range(ni):
+    #     Xi[:, ni-i-1] = X[:,X.shape[1]-i-1]
+
+    # print Xi
+    # print X
+
     for i in range(1, c + 1, 1):
         # while i <= c:
         # print "i: " + str(c)
         # print X.shape
         # j = 0
-        for j in range(1, ni + 1, 1):  # for j in range(ni - 1):
+        for j in range(1, ni, 1):  # ni + 1
             # print (ni * (i - 1)) + j -1 #ok
             # print (j * i)
             # print ((ni * (i - 1)) + (j * i))
             # Xi[:, i] = X[:, ni * (i - 1) + range(1, ni)[j] * i]  # !!!!!!!!!! 1:ni range(1, ni)
+            # print X[:, (ni * (i - 1)) + j - 1]
             Xi[:, i] = X[:, (ni * (i - 1)) + j - 1]  # OK?
             # ni*(i-1)+1:ni*i
         # print Xi #ok?
+        # print "loop"
         XiT = np.transpose(Xi)
         # # print np.transpose(np.mean(XiT,1))
         # print XiT.shape
@@ -108,7 +121,7 @@ def fisher(X, c, ni):
         EV1 = np.real(EV1)
     # end
 
-    EV = np.sum(EV1, 0).reshape((1,EV1.shape[1]))
+    EV = np.sum(EV1, 0).reshape((1, EV1.shape[1]))
     # print EV.shape
     rk1 = np.linalg.matrix_rank(EV1)  # powinno byc 2 jest 11
     # rk1=2 #FOR TESTING ONLY
@@ -129,7 +142,7 @@ def fisher(X, c, ni):
         E[:, i] = E1[:, coln]
         EV[:, coln] = 0
     # end
-    P = np.transpose(E[:, :]).dot(X) #np.transpose(E[:, :]) * X
+    P = np.transpose(E[:, :]).dot(X)  # np.transpose(E[:, :]) * X
     result = (P, E)
     # result = fisherResult(P, E)
 
