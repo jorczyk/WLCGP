@@ -5,6 +5,8 @@ import wlcgpFile
 
 
 def testWlcgp(img2, numx, numy, base, E, P, nTrain, NumPerClassTrain):
+    # print img2.shape
+
     img2 = ((img2 - np.mean(img2)) + 128) / np.std(img2) * 20
     iiCell = commons.block(numx, numy, img2)
     lbpII = []
