@@ -10,9 +10,9 @@ import fisherTrain
 
 filepath = ".\ORL"  # file path to dir with test faces
 
-NumPerson = 5  # number of classes #3
+NumPerson = 2  # number of classes #3
 NumPerClass = 10  # number of faces for each class
-NumPerClassTrain = 6  # trainging count for each class #4
+NumPerClassTrain = 3  # trainging count for each class #4
 NumPerClassTest = NumPerClass - NumPerClassTrain  #
 
 allsamples = np.empty((0, 0))
@@ -85,7 +85,7 @@ index = np.argsort(d1)
 
 # print d1 #3,4,2,1
 # print v #-4,-3,-1,2 --eigeny moga sie nie zgadzac bo tak
-print d #4,3,1,2
+# print d #4,3,1,2
 
 rows, cols = v.shape
 
@@ -215,11 +215,11 @@ for i in range(1, NumPerson + 1):  # 1
 
         div = div + 1
 
-        print "Result: " + str(result) + " Actual: " + str(i)
+        # print "Result: " + str(result) + " Actual: " + str(i)
         if result == i:
             accu = accu + 1
-print accu
-print div
+# print accu
+# print div
 accuracyRate = float(accu)/float(div)
 
-print "Accuracy: " + str(accuracyRate)
+# print "Accuracy: " + str(accuracyRate)
