@@ -7,6 +7,8 @@ import cv2
 import commons
 import wlcgpFile
 import fisherTrain
+import matlab_wrapper
+
 
 filepath = ".\ORL"  # file path to dir with test faces
 
@@ -73,25 +75,23 @@ for i in range(nTrain):
 
 ###################################################
 # PCA
-
-# print xmean[:,1872] #OK
-# print np.transpose(xmean)[1831,:] #OK
-# print xmean.shape
+matlab1 = matlab_wrapper.MatlabSession()
 
 sigma = xmean.dot(np.transpose(xmean))
 
-# print sigma/10000 #OK
-# print (sigma/10000)[4,:]
-# print sigma
+# d, v = np.linalg.eig(sigma)
+# # d-eigenvalues(8) v-eigenvectors(8x8)
+#
+# # matrix D of eigenvalues  matrix V whose columns are the corresponding right eigenvectors --MATLAB
+#
+# # dTemp = np.zeros((d.size,d.size))
+#
+# d1 = np.squeeze(np.asarray(d))  # rozmiar chyba ok
 
-d, v = np.linalg.eig(sigma)
-# d-eigenvalues(8) v-eigenvectors(8x8)
+v, d = matlab1.workspace.eig(sigma, nout=2)
+d1 = np.diag(d)
 
-# matrix D of eigenvalues  matrix V whose columns are the corresponding right eigenvectors --MATLAB
-
-# dTemp = np.zeros((d.size,d.size))
-
-d1 = np.squeeze(np.asarray(d))  # rozmiar chyba ok
+# matlab1.workspace.close()
 
 # print d1.shape #6,5,1,4,3,2 wartosci ok
 
@@ -100,10 +100,8 @@ d2 = np.sort(d1)
 # print d1 #ok
 # print d2 #ok
 index = np.argsort(d1)
-# print index #ok
 v2 = np.zeros(v.shape)
 
-# for indx in np.nditer(index):
 for i in range(index.size): # po tym macierze sa identyczne jak te z matlaba
     v2[:, i] = v[:,index[i]]
 
@@ -123,17 +121,14 @@ rows, cols = v.shape  # ok
 vsort = np.zeros((rows, cols))
 # dsort = [0] * index.size
 dsort = [0] * len(index)
-# print v2 #ok
-# print index
-# print d2
-# print cols
 
 
 for i in range(cols):
-    vsort[:, i] = v2[:, index[cols - i - 1]]  # kolejnosc nie ma znaczenia bo sobie odpowiadaja
-    dsort[i] = d2[index[
+    vsort[:, i] = v[:, index[cols - i - 1]]  # kolejnosc nie ma znaczenia bo sobie odpowiadaja
+    dsort[i] = d1[index[
         cols - i - 1]]  # czy tu ni epowinno byc d2????? - w orignale jest d1 ale maja te d1 zawsze posortowane i
     # jest to tak jakby d2 tyle ze przy d2 wywala blad w fisherTrain Q[:, i] = U[:, U.shape[1] + i - c] tylko w sumie dlaczego?
+    # v2 i d2
 
 # print dsort
 # print dsort #elementy te same, zmieniona kolejnosc ale to nie powinno nic zmienic
@@ -141,6 +136,7 @@ for i in range(cols):
 # print np.size(dsort)
 # print dsort wartosci nie do konca te same
 
+##################################################################
 
 dsum = np.sum(dsort)  # dsum = sum(dsort);
 # print dsum #ok
@@ -160,14 +156,6 @@ while dsumExtract / dsum < 0.95: #PO CO???
 i = 0
 p = nTrain - 1  # nTrain - 1
 
-# print p
-
-# print ((vsort[:, i]).shape) #ok
-# print (dsort[1]** (-1 / 2)) #ok
-
-# print p #ok
-# print dsort #ok
-# print vsort #ok
 
 base = np.zeros((allsamples.shape[1], p))
 
@@ -191,23 +179,22 @@ while (i < p) & (dsort[i] > 0):  # (i <= p)!
 ##########################################
 
 allcoor = allsamples.dot(base)
-#
-# print allcoor#ok
-# print allcoor.shape #ok numperson jest wazne
 
-temp = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain)  # !!!
+temp = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain, matlab1)  # !!!
 
-# P = temp[0]
-# E = temp[1]
-# accu = 0
+P = temp[0]
+E = temp[1]
+accu = 0
 #
-# print E.shape
-# print P.shape
+# print E #romiar OK
+# print P.shape #rozmiar OK
 #
+
+matlab1.workspace.close()
 # ###################################################
 #
-# # Testing
-#
+# Testing
+
 # div = 0
 #
 # for i in range(1, NumPerson + 1):  # 1

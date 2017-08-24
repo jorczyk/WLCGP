@@ -1,13 +1,19 @@
 from collections import namedtuple
 import numpy as np
-
+# from scipy import linalg
+import matlab_wrapper
 
 # TODO -- kiedy ni jest rowne 1 to jest problem w petli ale to malo prawdopodobny przypadek
 
 # fisherResult = namedtuple('fisherResult', ['P', 'E'])
 # OK
+# from scipy import linalg
+# from scipy import linalg
+# from scipy.io import matlab
 
-def fisher(X, c, ni):
+
+def fisher(X, c, ni, matlab):
+    # matlab = matlab_wrapper.MatlabSession()
     r, n = X.shape
     XT = np.transpose(X)
     mxTot = np.mean(XT, 0)  # OK
@@ -120,41 +126,53 @@ def fisher(X, c, ni):
     SBnew = Q.dot(np.transpose(Q)).dot(SB).dot(np.transpose(Q.dot(np.transpose(Q))))  # OK
 
     # print SBnew
-    E1, EV1, E2 = np.linalg.svd(SBnew)
-    EV1 = np.diag(EV1)
+    # E1, EV1, E2 = np.linalg.svd(SBnew)
+    # A = np.array((None))
+    # matlab.workspace.putvalue('SBnew', SBnew)
 
+    E1, EV1, E2 = matlab.workspace.svd(SBnew,nout=3) #nie wiem dlaczego wywowalnie z matlaba daje inne wyniki niz matlab
+    # print A
+
+    # E1 = matlab.workspace.getvalue('B')
+    # print E1
+    # EV1 = np.diag(EV1) #ok
+    # print E1.dot(EV1).dot(np.transpose(E2))
+    # print SBnew
+    # print E1
+
+    # matlab.close()
 ##########################################################################################
 
-    # sig2 = np.isreal(E1)
+    sig2 = np.isreal(E1)
     # print np.all(np.isreal((E1)))
     if not (np.all(np.isreal(E1))):  # sig2 == 0
         E1 = np.real(E1)
         EV1 = np.real(EV1)
-    # end
+    #end
     #
-    # EV = np.sum(EV1, 0).reshape((1, EV1.shape[1]))
-    # # print EV.shape
-    # rk1 = np.linalg.matrix_rank(EV1)  # powinno byc 2 jest 11
-    # # rk1=2 #FOR TESTING ONLY
-    # # rk1 = np.rank(EV1)
-    # # print EV1
-    #
-    # E = np.zeros((E1.shape[0], rk1))
-    # # i = 1
-    # # while i <= rk1:
-    # #     i += 1
-    #
-    # # print E.shape
-    # # print E1.shape
-    # for i in range(rk1):
-    #     maxValue = np.amax(EV)  # [max_value,coln]=max(EV);
-    #     coln = np.argmax(EV)
-    #     # print coln
-    #     E[:, i] = E1[:, coln]
-    #     EV[:, coln] = 0
-    # # end
-    # P = np.transpose(E[:, :]).dot(X)  # np.transpose(E[:, :]) * X
-    # result = (P, E)
-    # # result = fisherResult(P, E)
+    EV = np.sum(EV1, 0).reshape((1, EV1.shape[1]))
+    # print EV.shape
+    rk1 = np.linalg.matrix_rank(EV1)  # powinno byc 2 jest 11
+    # rk1=2 #FOR TESTING ONLY
+    # rk1 = np.rank(EV1)
+    # print EV1
 
-    return 1  # result
+    E = np.zeros((E1.shape[0], rk1))
+    # i = 1
+    # while i <= rk1:
+    #     i += 1
+
+    # print E.shape
+    # print E1.shape
+    for i in range(rk1):
+        maxValue = np.amax(EV)  # [max_value,coln]=max(EV);
+        coln = np.argmax(EV)
+        # print coln
+        E[:, i] = E1[:, coln]
+        EV[:, coln] = 0
+    # end
+    P = np.transpose(E[:, :]).dot(X)  # np.transpose(E[:, :]) * X
+    result = (P, E)
+    # result = fisherResult(P, E)
+
+    return result  # result
