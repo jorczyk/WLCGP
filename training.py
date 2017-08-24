@@ -3,14 +3,14 @@ import cv2
 import commons
 import wlcgpFile
 import fisherTrain
-from tempfile import TemporaryFile
+import matlab_wrapper
 
 filepath = ".\ORL"  # file path to dir with test faces
 
 NumPerson = 2  # number of classes #3
 NumPerClass = 10  # number of faces for each class
 NumPerClassTrain = 3  # trainging count for each class #4
-NumPerClassTest = NumPerClass - NumPerClassTrain  #
+NumPerClassTest = NumPerClass - NumPerClassTrain
 
 allsamples = np.empty((0, 0))
 
@@ -21,7 +21,7 @@ for i in range(1, NumPerson + 1):
     for j in range(1, NumPerClassTrain + 1):
         filePath = filepath + "\s" + str(i) + "\\" + str(j) + ".pgm"  # filepath to read
         img = cv2.imread(filePath, 0)
-        xsize, ysize = img.shape
+        xsize, ysize = img.shape  # get file size xsize - pionowo; ysize - poziomo
         img = np.double(img)
 
         img = ((img - np.mean(img)) + 128) / np.std(img) * 20  # ok
@@ -29,20 +29,21 @@ for i in range(1, NumPerson + 1):
         lbpI = []
         lbpI = np.asarray(lbpI)
 
-        for k in range(numx):
-            for m in range(numy):
-                iCellBlock = iCell[k, m]
+        for k in range(numx):  # numx
+            for m in range(numy):  # numy
+                iCellBlock = iCell[k, m]  # k,m
                 blockLBPI = wlcgpFile.wlcgp(iCellBlock)
                 blockLBPI = np.transpose(blockLBPI)
                 if (m == 0) & (k == 0):
                     lbpI = blockLBPI
                 else:
-                    lbpI = np.concatenate((lbpI, blockLBPI))  # LBP_I=[LBP_I,Block_LBP_I]; moze byc concatenate
+                    lbpI = np.concatenate((lbpI, blockLBPI))
 
         if (j == 1) & (i == 1):
             allsamples = lbpI
         else:
             allsamples = np.concatenate((allsamples, lbpI), -1)
+
 
 allsamples = allsamples.reshape((NumPerClassTrain * NumPerson, lbpI.size))  # size ok
 
@@ -54,50 +55,61 @@ for i in range(nTrain):
     xmean[i, :] = allsamples[i, :] - sampleMean
 # end
 
-###################################################
+
 # PCA
+matlab1 = matlab_wrapper.MatlabSession()
+
 sigma = xmean.dot(np.transpose(xmean))
 
-d, v = np.linalg.eig(sigma)
-
-d1 = np.squeeze(np.asarray(d))
-d2 = d1.sort
+v, d = matlab1.workspace.eig(sigma, nout=2)
+d1 = np.diag(d)
+d2 = np.sort(d1)
 index = np.argsort(d1)
+v2 = np.zeros(v.shape)
+
+for i in range(index.size):
+    v2[:, i] = v[:,index[i]]
+
+v2[:,v2.shape[1]-1] = v2[:,v2.shape[1]-1] * -1
+index = range(0,len(index))
 
 rows, cols = v.shape
-
 vsort = np.zeros((rows, cols))
-dsort = [0] * index.size
+dsort = [0] * len(index)
+
 
 for i in range(cols):
-    vsort[:, i] = v[:, index[cols - i - 1]]  # !!
-    dsort[i] = d1[index[cols - i - 1]]
+    vsort[:, i] = v[:, index[cols - i - 1]]
+    dsort[i] = d1[index[
+        cols - i - 1]]
 
 dsum = np.sum(dsort)
+
 dsumExtract = 0
 p = 0
 
-while dsumExtract / dsum < 0.95:
-    dsumExtract = np.sum(dsort[0:p - 1])
+while dsumExtract / dsum < 0.95: #PO CO???
+    dsumExtract = np.sum(dsort[0:p - 1])  # (dsort[1:p])
     p = p + 1
 
 i = 0
 p = nTrain - 1
-
 base = np.zeros((allsamples.shape[1], p))
+
 while (i < p) & (dsort[i] > 0):  # (i <= p)!
-    base[:, i] = (dsort[i] ** (-1 / 2)) * (np.transpose(xmean).dot(
+    base[:, i] = ((1 / np.math.sqrt(dsort[i])) * np.transpose(xmean).dot(
         vsort[:, i]))
     i = i + 1
 
 allcoor = allsamples.dot(base)
-temp = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain)  # !!!
+
+temp = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain, matlab1)  # !!!
 
 P = temp[0]
 E = temp[1]
 accu = 0
 
-#################################
+matlab1.workspace.close()
 
 # SAVING variables to files
 

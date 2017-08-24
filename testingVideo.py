@@ -50,7 +50,7 @@ while (True):
     for face_image, (x, y, w, h) in zip(face_images, face_locations):
         # print face_image.shape
         result = wlcgpt.testWlcgp(face_image, numx, numy, base, E, P, nTrain, NumPerClassTrain)
-        print result
+        # print result
 
         # KONIEC WLCGP
         #########################################
@@ -58,17 +58,11 @@ while (True):
         cv2.rectangle(
             stream_reader.current_frame,
             (x, y), (x + w, y + h), (255, 255, 255), 1)
-        #     if label != -1:
-        #         cv2.putText(
-        #             stream_reader.current_frame,
-        #             "ID: " + str(label) + " , conf.: " + str(round(confidence)),
-        #             (x, y), cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
-        # if args.reference_faces_path:
-        #     cv2.imshow("mlnSpyHole - face window", reference_faces[label])
-        # print "Detected id: " + str(label), \
-        #     "\b, conf.: " + str(round(confidence)), \
-        #     "\b, at: " + str(x) + ' ' + str(y), \
-        #     "- " + str(x + w) + ' ' + str(y + h)
+        if result != -1:
+            cv2.putText(
+                stream_reader.current_frame,
+                "ID: " + str(result),
+                (x, y), cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
 
     finish_time = time.time()
 
