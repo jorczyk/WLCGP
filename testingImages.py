@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import time
 import commons
-import wlcgpFile
+import wlcgpAlgorithm
 
 start_time = time.time()
 
@@ -45,7 +45,7 @@ while i <= 1:
     for k in range(numx):
         for m in range(numy):
             iiCellBlock = iiCell[k, m]  # k,m
-            blockLBPII = wlcgpFile.wlcgp(iiCellBlock)
+            blockLBPII = wlcgpAlgorithm.wlcgp(iiCellBlock)
             blockLBPII = np.transpose(blockLBPII)
             if (m == 0) & (k == 0):
                 lbpII = blockLBPII

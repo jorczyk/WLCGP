@@ -1,11 +1,10 @@
 import numpy as np
 
 import commons
-import wlcgpFile
+import wlcgpAlgorithm
 
 
 def testWlcgp(img2, numx, numy, base, E, P, nTrain, NumPerClassTrain):
-    # print img2.shape
 
     img2 = ((img2 - np.mean(img2)) + 128) / np.std(img2) * 20
     iiCell = commons.block(numx, numy, img2)
@@ -14,8 +13,8 @@ def testWlcgp(img2, numx, numy, base, E, P, nTrain, NumPerClassTrain):
 
     for k in range(numx):
         for m in range(numy):
-            iiCellBlock = iiCell[k, m]  # k,m
-            blockLBPII = wlcgpFile.wlcgp(iiCellBlock)
+            iiCellBlock = iiCell[k, m]
+            blockLBPII = wlcgpAlgorithm.wlcgp(iiCellBlock)
             blockLBPII = np.transpose(blockLBPII)
             if (m == 0) & (k == 0):
                 lbpII = blockLBPII

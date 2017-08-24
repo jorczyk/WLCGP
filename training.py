@@ -1,15 +1,15 @@
 import numpy as np
 import cv2
 import commons
-import wlcgpFile
+import wlcgpAlgorithm
 import fisherTrain
 import matlab_wrapper
 
 filepath = ".\ORL"  # file path to dir with test faces
 
-NumPerson = 2  # number of classes #3
+NumPerson = 2  # number of classes
 NumPerClass = 10  # number of faces for each class
-NumPerClassTrain = 3  # trainging count for each class #4
+NumPerClassTrain = 3  # trainging count for each class
 NumPerClassTest = NumPerClass - NumPerClassTrain
 
 allsamples = np.empty((0, 0))
@@ -32,7 +32,7 @@ for i in range(1, NumPerson + 1):
         for k in range(numx):  # numx
             for m in range(numy):  # numy
                 iCellBlock = iCell[k, m]  # k,m
-                blockLBPI = wlcgpFile.wlcgp(iCellBlock)
+                blockLBPI = wlcgpAlgorithm.wlcgp(iCellBlock)
                 blockLBPI = np.transpose(blockLBPI)
                 if (m == 0) & (k == 0):
                     lbpI = blockLBPI
@@ -45,7 +45,7 @@ for i in range(1, NumPerson + 1):
             allsamples = np.concatenate((allsamples, lbpI), -1)
 
 
-allsamples = allsamples.reshape((NumPerClassTrain * NumPerson, lbpI.size))  # size ok
+allsamples = allsamples.reshape((NumPerClassTrain * NumPerson, lbpI.size))
 
 sampleMean = np.mean(allsamples, 0).reshape((1, allsamples.shape[1]))
 nTrain = np.size(allsamples, 0)
@@ -88,23 +88,22 @@ dsum = np.sum(dsort)
 dsumExtract = 0
 p = 0
 
-while dsumExtract / dsum < 0.95: #PO CO???
-    dsumExtract = np.sum(dsort[0:p - 1])  # (dsort[1:p])
-    p = p + 1
+# while dsumExtract / dsum < 0.95:
+#     dsumExtract = np.sum(dsort[0:p - 1])
+#     p = p + 1
 
 i = 0
 p = nTrain - 1
 base = np.zeros((allsamples.shape[1], p))
 
-while (i < p) & (dsort[i] > 0):  # (i <= p)!
+while (i < p) & (dsort[i] > 0):
     base[:, i] = ((1 / np.math.sqrt(dsort[i])) * np.transpose(xmean).dot(
         vsort[:, i]))
     i = i + 1
 
 allcoor = allsamples.dot(base)
 
-temp = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain, matlab1)  # !!!
-
+temp = fisherTrain.fisher(np.transpose(allcoor), NumPerson, NumPerClassTrain, matlab1)
 P = temp[0]
 E = temp[1]
 accu = 0

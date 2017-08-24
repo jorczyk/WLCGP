@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import commons
-import wlcgpFile
+import wlcgpAlgorithm
 
 filepath = ".\ORL"  # file path to dir with test faces
 
@@ -38,7 +38,7 @@ for i in range(1, NumPerson + 1):  # 1
         for k in range(numx):
             for m in range(numy):
                 iiCellBlock = iiCell[k, m]  # k,m
-                blockLBPII = wlcgpFile.wlcgp(iiCellBlock)
+                blockLBPII = wlcgpAlgorithm.wlcgp(iiCellBlock)
                 blockLBPII = np.transpose(blockLBPII)
                 if (m == 0) & (k == 0):
                     lbpII = blockLBPII
